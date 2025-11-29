@@ -13,15 +13,20 @@ function main() {
         printt("loading commandfileb "+mod)
         IncludeFile(format("external/%s", mod))
     }
-
+    ::blockedargs <- {}
+    Globalize(shouldblockcommand)
     Globalize(Lsendmessage)
+    Globalize(loadblockedcommands)
     Globalize(helpdc)
     Lregistercommand("sendmessage",4,true,Lsendmessage,"send a chat message",false)
     Lregistercommand("helpdc",0,true,helpdc,"get the discord help list",true)
+    Lregistercommand("senddiscordcommands",4,false,loadblockedcommands,"loads blocked commands",false)
     AddCallback_OnClientConnected(Lconnect)
     AddCallback_OnClientDisconnected(Ldisconnect)
     AddCallback_OnClientChatMsg(LBonmessage)
     thread nextmap()
+    Laddusedcommandtotablev2("","getdiscordcommands")
+
 }
 function helpdc(a,b,c){
     return true
@@ -38,6 +43,7 @@ function LBonmessage(whosentit, message, isteamchat) {
         metadata.entid <- whosentit
         metadata.teamtype <- "not team"
         metadata["type"] <- "tf1command"
+        metadata["blockedcommand"] <- shouldblockcommand(message)
         messagee["overridechannel"] <- "commandlogchannel"
         messagee.globalmessage <- true
         messagee.messagecontent <- output+""
@@ -122,9 +128,9 @@ function requeststats (player){
 }
 
 function requestnatterforcoolperks(player){
-    // if ((!Lgetnatterforcoolperks) || (MAPS[GetMapName()] != "Lobby")){
-    //     return
-    // }
+    if ((!Lgetnatterforcoolperks) ){//|| IsLobby()){
+        return
+    }
     local playerdata = {}
     playerdata.playeruid <- player.GetEntIndex()
     playerdata.uid <- player.GetPlatformUserId()
@@ -153,7 +159,35 @@ function Ldisconnect (player){
     Laddusedcommandtotablev2(output,"smsg")
 }
 
+function shouldblockcommand(text){
+    if ((text.len() > 1 && format("%c", text.tolower()[0]) == "!") && (split(text.tolower().slice(1)," ")[0] in blockedargs && (blockedargs[split(text.tolower().slice(1)," ")[0]] || (split(text.tolower().slice(1)," ").len() > 1 && split(text.tolower().slice(1)," ")[1] in blockedargs && blockedargs[split(text.tolower().slice(1)," ")[1]])))){
+        return true
+    }else{
 
+     return false}
+}
+
+function loadblockedcommands(args,returnfunc){
+
+    local i = 0
+    local prevarg = ""
+    for (i = 0; i < args.len(); i++){
+		if ((i+1) % 2) {
+			prevarg = args[i]
+		}
+        		else{
+			local shouldblock = false
+			if (args[i] == "1") {
+				shouldblock = true
+			}
+			blockedargs[prevarg] <- shouldblock
+		}
+        
+		
+    }
+    returnfunc("Set commands - " + i / 2 + " commands found")
+
+}
 function Lsendmessage(args,returnfunc){
     local who = args[0]
     args.remove(0)
@@ -163,15 +197,20 @@ function Lsendmessage(args,returnfunc){
         returnfunc("failed! 0 playing")
         return
     }
+    
     if (who != "placeholder"){
         foreach(person in GetPlayerArray()){
             if (StringContains(who,person.GetPlatformUserId())){
                 player = person
             }
         }
-        if (player == true){
-            returnfunc("failed! person not found")
-            return
+        // if (player == true){
+        //     returnfunc("failed! person not found")
+        //     return
+        // }
+    } else{
+        if (Time() < 10){
+            returnfunc("failed! too early")
         }
     }
 
@@ -181,7 +220,7 @@ function Lsendmessage(args,returnfunc){
             output += arg + " "
         }
     
-    SendChatMsg(player,0,output,false,false)
+    LSendChatMsg(player,0,output,false,false,false,true)
     returnfunc("sent!")
     return true
 }

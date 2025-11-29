@@ -6,7 +6,7 @@ function main() {
     "gravitymod",
     "throw",
     "nominate",
-    // "extend",
+    "extend",
     "skip",
     "titanfall",
     "rcon",
@@ -38,7 +38,7 @@ function main() {
     // print("LOADDDED WOOOOOP WOOOP")
     // thread Iwanttorepeatthismessage ()
     ::registeredvotes <- {}
-    ::version <- "v0.3.4"
+    ::version <- "v0.3.5"
     Globalize(Lregistercommand)
     Globalize(Lprefix)
     Globalize(Laddmute)
@@ -359,11 +359,35 @@ function authfunction(player,args,returnfunc) {
     returnfunc("correct pass")
     // PrintTable(adminlist)
 }
-function LSendChatMsg(who = true,from = 0, text = "", isteam = false, isdead = false, outputless = false){
-    if (!outputless){
-         SendChatMsg(who,from,Lprefix(typeof who != "bool")+ text,isteam,isdead)
+function LSendChatMsg(who = true,from = 0, text = "", isteam = false, isdead = false, outputless = false,yetanotherarg = false){
+    thread realsendchatmessage(who ,from , text, isteam , isdead , outputless,yetanotherarg)
+}
+function realsendchatmessage(who = true,from = 0, text = "", isteam = false, isdead = false, outputless = false, yetanotherarg = false){
+    // if (!outputless){
+    //      SendChatMsg(who,from,Lprefix(typeof who != "bool")+ text,isteam,isdead)
+    // }
+    if (!yetanotherarg){
+    print("CMDLINE<"+text+"/>CMDLINE")}
+    local players = [who]
+    if (who == true){
+
+            players = GetPlayerArray()
     }
-    print("CMDLINE<"+text+"/>CMDLINE")
+    
+    local Icheckedeverything = true
+    while (Icheckedeverything) {
+        Icheckedeverything = true
+        foreach (player in players){
+            if ( (!IsAlive( player ) && player.s.lastDeathTime < Time() + 10)){
+                continue
+            }
+            Icheckedeverything = false
+             if (!outputless){
+            SendChatMsg(player,from,Lprefix(typeof who != "bool",yetanotherarg)+ text,isteam,isdead)}
+
+        }
+        wait 0.1
+    }
 }
 function authremove(player){
     // printt("HERE")
@@ -435,7 +459,10 @@ function Lonjoin(player) {
     LSendChatMsg(player,0,"Welcome "+player.GetPlayerName() +", type !help for commands" ,false,false)
 }
 
-function Lprefix(private = false){
+function Lprefix(private = false,justsendnothing = false){
+    if (justsendnothing){
+        return ""
+    }
     if (!private){
     return "\x1b[38;5;190m[Lexicmd]\x1b[38;5;254m "}
     else{
@@ -504,7 +531,7 @@ function onmessage(whosentit, message, isteamchat)
         // else {
         //     Laddusedcommandtotable(message,"chat_message")
         // }
-        if (!found){
+        if (!found && !shouldblockcommand(message)){
             // printt("Here")
         
    

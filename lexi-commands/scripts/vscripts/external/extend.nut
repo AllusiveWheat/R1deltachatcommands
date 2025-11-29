@@ -3,13 +3,13 @@ function main() {
     ::timeextend <- 10  // TIME TO EXTEND MAP
     // !name, adminlevel (0 is everyone), should block the original message (non functional) function to run, description in !help, requires a sender (set this to true if the command uses player arg in any way)
     Lregistercommand(["extend","ex"],0,false,Lextend,"vote to extend the current map",true)
-    Lregistervote("extend",0.3,1,0,120,0)
+    Lregistervote("extend",0.2,1,0,120,0)
    
 }
 
 function Lextend(player,args,returnfunc){
     // PrintTable(level)
-             LSendChatMsg(true,0, GetRoundTimeLimit_ForGameMode()+"wdw"+GameTime.TimeLeftSeconds()+" "+GetServerVar( "gameEndTime" )+ " "+(GetCurrentPlaylistVarInt("AT_timelimit", 10)) ,false,false)
+            //  LSendChatMsg(true,0, GetRoundTimeLimit_ForGameMode()+"wdw"+GameTime.TimeLeftSeconds()+" "+GetServerVar( "gameEndTime" )+ " "+(GetCurrentPlaylistVarInt("AT_timelimit", 10)) ,false,false)
              
     if (GetGameState() != eGameState.Playing){
           returnfunc("You must be in a game!")
