@@ -378,7 +378,7 @@ function realsendchatmessage(who = true,from = 0, text = "", isteam = false, isd
     while (Icheckedeverything) {
         Icheckedeverything = true
         foreach (player in players){
-            if ( (!IsAlive( player ) && player.s.lastDeathTime < Time() + 10)){
+            if ( ( IsLobby() && !IsAlive( player )   && player.s.lastDeathTime < Time() + 10)){
                 continue
             }
             Icheckedeverything = false
