@@ -109,7 +109,7 @@ function GetTitan(player) {
         return "null"
     if(player.GetPetTitan() != null) {
         local titan = player.GetPetTitan()
-        if(!titan.IsValid()) {
+        if(!IsValid(titan)) {
             return "null"
         }
         if(titan.GetTitanSoul() == null) {
